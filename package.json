@@ -1,0 +1,37 @@
+{
+  "name": "jsdoc-plantuml",
+  "version": "1.0.0",
+  "description": "jsdoc3 plugin to use plantuml inside javascript documentation",
+  "main": "./index.js",
+  "author": {
+    "name": "Stefan Seide",
+    "email": "feedback@evildev.ru"
+  },
+  "keywords": [
+    "jsdoc",
+    "jsdoc3",
+    "jsdoc-plugin",
+    "plantuml",
+    "uml"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trilobyte-berlin/jsdoc-plantuml.git"
+  },
+  "engines": {
+    "node": ">=6.x"
+  },
+  "dependencies": {
+    "jsdoc": "*",
+    "fs-extra": "^7.0.0"
+  },
+  "optionalDependencies": {
+    "node-plantuml": "~0.8.1"
+  },
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/trilobyte-berlin/jsdoc-plantuml/issues"
+  },
+  "homepage": "https://github.com/trilobyte-berlin/jsdoc-plantuml",
+  "license": "MIT"
+}
