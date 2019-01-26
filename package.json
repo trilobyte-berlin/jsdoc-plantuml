@@ -4,8 +4,7 @@
   "description": "jsdoc3 plugin to use plantuml inside javascript documentation",
   "main": "./index.js",
   "author": {
-    "name": "Stefan Seide",
-    "email": "feedback@evildev.ru"
+    "name": "Stefan Seide"
   },
   "keywords": [
     "jsdoc",
@@ -22,11 +21,13 @@
     "node": ">=6.x"
   },
   "dependencies": {
-    "jsdoc": "*",
     "fs-extra": "^7.0.0"
   },
   "optionalDependencies": {
     "node-plantuml": "~0.8.1"
+  },
+  "peerDependencies": {
+    "jsdoc": "*"
   },
   "readmeFilename": "README.md",
   "bugs": {
