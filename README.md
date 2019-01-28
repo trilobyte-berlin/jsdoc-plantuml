@@ -20,10 +20,10 @@ install jsdoc and this plugin
 
 Now write some uml diagrams inside your regular jsdocs. 
 
-Attention - The `@startuml` tag must get one parameter - the filename to safe this uml diagram at.
+Attention - The `@startuml` tag must have one parameter - the filename to safe this uml diagram at.
 ```js
 /**
- *  my normal jsodc comments...
+ *  my normal jsdoc comments...
  *  and here i reference my image generated with <img src=filename.png">
  *  inside generate html docs
  *
@@ -35,12 +35,12 @@ Attention - The `@startuml` tag must get one parameter - the filename to safe th
  */
 ```
 
-The filename given after `@startuml` can either we a relativ filename with or without paths or
+The filename given after `@startuml` can either be a relative filename with or without paths or
 an absolute filename. @startuml tags without filename are ignored by this plugin.
 
 The filename should either end with the graphic format needed (png, svg, eps) or with "puml"
-as format for the plant uml source code files. If puml is used here the defaultFormat from the
-configuration is used to determined the file format created.
+as format for the plant uml source code files. If puml is used the defaultFormat from the
+configuration is used to determined the image file format created.
 
 * `@startuml <filename>` can contain paths, allowed file formats are "png, svg, eps, puml" 
   examples "@startuml file.png" or "@startuml my/path/file.puml" etc.pp.
@@ -52,7 +52,7 @@ if no plantuml object is added to your jsdoc-config.
 ```json
 {
   ...
-  "plugins": [ "node_modules/jsdoc-plantuml"],
+  "plugins": [ "jsdoc-plantuml"],
   "plantuml": {
     "puml": {
       "create": true,
@@ -93,7 +93,7 @@ jsdoc-config.json
 ```json
 {
   ...
-  "plugins": [ "node_modules/jsdoc-plantuml"],
+  "plugins": [ "jsdoc-plantuml"],
   "plantuml": {
     "puml": {
       "create": true,
@@ -130,7 +130,7 @@ jsdoc-config.json
 ```json
 {
   ...
-  "plugins": [ "node_modules/jsdoc-plantuml"],
+  "plugins": [ "jsdoc-plantuml"],
   "plantuml": {
     "puml": {
       "create": false
@@ -165,7 +165,7 @@ jsdoc-config.json, set default format for images to "svg" instead of "png"
 ```json
 {
   ...
-  "plugins": [ "node_modules/jsdoc-plantuml"],
+  "plugins": [ "jsdoc-plantuml"],
   "plantuml": {
     "puml": {
       "create": false
