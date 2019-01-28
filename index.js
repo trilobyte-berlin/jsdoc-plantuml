@@ -125,7 +125,7 @@ exports.defineTags = function(dictionary) {
          *  @param {object} tag new tag created
          */
         onTagged: function(doclet, tag) {
-            doclet.plantUml = [];
+            if (!Array.isArray(doclet.plantUml)) doclet.plantUml = [];
             tag.srcFile = path.join(doclet.meta.path, doclet.meta.filename);
             tag.value.description = '@startuml\n' + tag.value.description + '\n@enduml';
             if (tag.value.name) {
