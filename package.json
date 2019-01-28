@@ -1,6 +1,6 @@
 {
   "name": "jsdoc-plantuml",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "jsdoc3 plugin to use plantuml inside javascript documentation",
   "main": "./index.js",
   "author": {
