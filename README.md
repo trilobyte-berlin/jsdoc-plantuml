@@ -1,4 +1,9 @@
 # jsdoc-plantuml
+
+[![npm](https://img.shields.io/npm/v/jsdoc-plantuml.svg)](https://www.npmjs.com/package/jsdoc-plantuml)
+[![Known Vulnerabilities](https://snyk.io/test/github/trilobyte-berlin/jsdoc-plantuml/badge.svg)](https://snyk.io/test/github/trilobyte-berlin/jsdoc-plantuml)
+[![Dependency Status](https://david-dm.org/trilobyte-berlin/jsdoc-plantuml.svg)](https://david-dm.org/trilobyte-berlin/jsdoc-plantuml)
+
 This package contains a jsdoc3 plugin to use plantuml inside javascript documentation.
 
 * JSDoc: http://usejsdoc.org (Node-Package: https://www.npmjs.com/package/jsdoc) 
