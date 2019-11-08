@@ -13,10 +13,10 @@ This package contains a jsdoc3 plugin to use plantuml inside javascript document
 
 This plugin allows using the plantuml syntax with "@startuml ... @enduml" to use inside
 your normal JSDoc source code comments. This plugins parses them and either writes it 
-into seperate failes for external processing/displaying in ticket systems/... or 
+into seperate files for external processing/displaying in ticket systems/... or 
 generates image files to include in your generated documentation.
 
-Extracting the plantuml source into extra files works without extra dependnecies,
+Extracting the plantuml source into extra files works without extra dependencies,
 Creating image files need a installation of the "node-plantuml" package as well as the
 "graphviz" tool to actually generate some of the image formats. For further documentation check
 https://www.npmjs.com/package/node-plantuml.
@@ -31,7 +31,7 @@ Attention - The `@startuml` tag must have one parameter - the filename to safe t
 ```js
 /**
  *  my normal jsdoc comments...
- *  and here i reference my image generated with <img src=filename.png">
+ *  and here I reference my image generated with <img src=filename.png">
  *  inside generate html docs
  *
  * @startuml filename.png
@@ -128,7 +128,7 @@ function yadablah() {
     ...
 }
 ```
-The File safed is "jsdoc/puml/images/yadablah.svg" inside current working directory.
+The File saved is "jsdoc/puml/images/yadablah.svg" inside the current working directory.
 
 
 #### JSDoc comment with one uml diagram, only image file should be saved, not the puml file
