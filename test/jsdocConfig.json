@@ -1,0 +1,36 @@
+{
+  "tags": {
+    "allowUnknownTags": true
+  },
+  "opts": {
+    "access": "all",
+    "destination": "jsDocs",
+    "recurse": true,
+    "sort": false
+  },
+  "plugins": [
+    "../index.js"
+  ],
+  "source": {
+    "include": [
+      "js/"
+    ]
+  },
+  "templates": {
+    "default": {
+      "outputSourceFiles": false
+    }
+  },
+  "plantuml": {
+    "puml": {
+      "create": true,
+      "destination": "jsDocs/plantuml"
+    },
+    "images": {
+      "create": true,
+      "destination": "jsDocs/img",
+      "defaultFormat": "png",
+      "replaceWithImage": true
+    }
+  }
+}

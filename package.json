@@ -1,8 +1,12 @@
 {
   "name": "jsdoc-plantuml",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "jsdoc3 plugin to use plantuml inside javascript documentation",
   "main": "./index.js",
+  "scripts": {
+    "test": "grunt --gruntfile test/Gruntfile.js",
+    "fixBrokenNodeJS": "node ./fixBrokenNodeJS.js"
+  },
   "author": {
     "name": "Stefan Seide"
   },
@@ -24,10 +28,15 @@
     "fs-extra": "^9.0.0"
   },
   "optionalDependencies": {
-    "node-plantuml": "~0.8.1"
+    "node-plantuml-latest": "~2.1.0"
   },
   "peerDependencies": {
     "jsdoc": "*"
+  },
+  "devDependencies": {
+    "grunt": "^1.4.1",
+    "grunt-jsdoc": "^2.4.1",
+    "jsdoc": "^3.6.7"
   },
   "readmeFilename": "README.md",
   "bugs": {
