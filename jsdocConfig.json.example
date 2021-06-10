@@ -5,6 +5,7 @@
   "opts": {
     "destination": "./jsDocs/gen",
     "access": "all",
+    "recurse": true,
     "sort": false
   },
   "plugins": [
@@ -20,7 +21,8 @@
     "images": {
       "create": true,
       "destination": "jsDocs/gen/images",
-      "defaultFormat": "png"
+      "defaultFormat": "png",
+      "replaceWithImage": true
     }
   }
 }

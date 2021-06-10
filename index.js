@@ -1,10 +1,13 @@
+/* eslint-env node */
+'use strict';
+
 const env = require('jsdoc/env');
 const logger = require('jsdoc/util/logger');
 const path = require('path');
 const fs = require('fs');
 const fse = require('fs-extra');
 
-const logPrefix = 'jsdoc-plantuml: ';
+const logPrefix = 'jsdoc-plantuml:';
 
 // lazy init if needed
 let plantuml;
@@ -14,6 +17,7 @@ let plantuml;
 let myConfig = {
     createPuml: true,
     createImages: true,
+    replaceWithImage: false,
     pathPuml: './jsDoc/puml',
     pathImages: './jsDoc/images',
     imageFormat: 'png'
@@ -36,22 +40,23 @@ function _checkConfiguration() {
         if (typeof config.puml.create === 'boolean') myConfig.createPuml = config.puml.create;
         if (config.puml.destination) {
             myConfig.pathPuml = config.puml.destination;
-            logger.debug(logPrefix + 'got destination path from config: ' + myConfig.pathPuml);
+            logger.debug(`${logPrefix} got destination path from config: ${myConfig.pathPuml}`);
         }
     }
-    logger.info(logPrefix + 'using destination path for puml files: ' + myConfig.pathPuml);
+    logger.info(`${logPrefix} using destination path for puml files: ${myConfig.pathPuml}`);
 
     if (config.images) {
         if (typeof config.images.create === 'boolean') myConfig.createImages = config.images.create;
+        if (typeof config.images.replaceWithImage === 'boolean') myConfig.replaceWithImage = config.images.replaceWithImage;
         if (config.images.destination) {
             myConfig.pathImages = config.images.destination;
-            logger.debug('got destination path from config: ' + myConfig.pathImages);
+            logger.debug(`${logPrefix} got destination path from config: ${myConfig.pathImages}`);
         }
         if (config.images.defaultFormat) {
             myConfig.imageFormat = config.images.defaultFormat;
         }
     }
-    logger.info(logPrefix + 'using destination path for image files: ' + myConfig.pathImages);
+    logger.info(`${logPrefix} using destination path for image files: ${myConfig.pathImages}`);
 }
 // end configuration
 // ====
@@ -65,43 +70,43 @@ exports.handlers = {
     parseBegin: function(e) {
         if (myConfig.createImages) {
             try {
-                plantuml = require('node-plantuml');
+                plantuml = require('node-plantuml-latest');
             }
             catch (ex) {
-                logger.error(logPrefix + '"createImages" is set to TRUE but package "node-plantuml" not installed');
+                logger.error(`${logPrefix} "createImages" is set to TRUE but package "node-plantuml" not installed`);
             }
         }
     },
-    /** check all doclets creeated and extract list of uml descriptions found to either write PUML files with
+    /** check all doclets created and extract list of uml descriptions found to either write PUML files with
      *  their source or create image from them
      *
      *  @param {object} e - jsdoc handler event (http://usejsdoc.org/about-plugins.html)
      */
     processingComplete: function(e) {
-        logger.debug(logPrefix + 'processingComplete: doclet length=' + e.doclets.length);
+        logger.debug(`${logPrefix} processingComplete: doclet length=${e.doclets.length}`);
         let umlTags = [];
         e.doclets.filter((d) => Array.isArray(d.plantUml))
-    .forEach((doc) => doc.plantUml.forEach((tag) => umlTags.push(tag)));
+            .forEach((doc) => doc.plantUml.forEach((tag) => umlTags.push(tag)));
 
-        logger.debug(logPrefix + 'processingComplete: uml tags length=' + umlTags.length + ', ' + JSON.stringify(umlTags));
+        logger.debug(`${logPrefix} processingComplete: uml tags length=${umlTags.length}, ` + JSON.stringify(umlTags));
         umlTags.forEach(function(umlTag) {
             if (myConfig.createPuml && umlTag.outFilePuml) {
                 logger.info('writing puml file ' + umlTag.outFilePuml);
                 fse.ensureDir(path.dirname(umlTag.outFilePuml), function(err) {
                     if (err && !err.EEXIST) {
-                        logger.error(logPrefix + 'Cannot create directory to write puml files: ' + err.toString());
+                        logger.error(`${logPrefix} Cannot create directory to write puml files: ${err.toString()}`);
                         return;
                     }
                     fse.outputFile(umlTag.outFilePuml, umlTag.value.description, function(err) {
-                        if (err) logger.error(logPrefix + 'Could not write PUML file at ' + umlTag.outFilePuml + ': ' + JSON.stringify(err));
+                        if (err) logger.error(`${logPrefix} Could not write PUML file at ${umlTag.outFilePuml}: ` + JSON.stringify(err));
                     });
                 });
             }
             if (myConfig.createImages && umlTag.outFileImage) {
-                logger.info(logPrefix + 'writing ' + umlTag.imageFormat + ' image file ' + umlTag.outFileImage);
+                logger.info(`${logPrefix} writing ${umlTag.imageFormat} image file ${umlTag.outFileImage}`);
                 fse.ensureDir(path.dirname(umlTag.outFileImage), function(err) {
                     if (err && !err.EEXIST) {
-                        logger.error(logPrefix + 'Cannot create directory to write image files: ' + err.toString());
+                        logger.error(`${logPrefix} Cannot create directory to write image files: ${err.toString()}`);
                         return;
                     }
                     // write imagefile
@@ -119,7 +124,7 @@ exports.defineTags = function(dictionary) {
     dictionary.defineTag('startuml', {
         canHaveName: true,
         mustHaveValue: true,
-        /** define doclet for startuml to to catch all plat uml related definitions
+        /** define doclet for startuml to to catch all plant uml related definitions
          *
          *  @param {object} doclet latest doclet
          *  @param {object} tag new tag created
@@ -131,7 +136,7 @@ exports.defineTags = function(dictionary) {
             if (tag.value.name) {
                 // check if really name is given - look for plantuml known file extensions
                 let extension = path.extname(tag.value.name);
-                logger.debug(logPrefix + 'found uml tag with file name extension ' + extension);
+                logger.debug(`${logPrefix} found uml tag with file name extension ${extension}`);
                 switch (extension.toLowerCase()) {
                     case '.png':
                     case '.svg':
@@ -139,7 +144,7 @@ exports.defineTags = function(dictionary) {
                         tag.outFilePuml = path.join(myConfig.pathPuml, tag.value.name.replace(new RegExp(extension + '$'), '.puml'));
                         if (!path.isAbsolute(tag.outFilePuml)) {
                             tag.outFilePuml = path.join(process.cwd(), tag.outFilePuml);
-                            logger.debug(logPrefix + 'new puml path not absolute - new is ' + tag.outFilePuml);
+                            logger.debug(`${logPrefix} new puml path not absolute - new is ${tag.outFilePuml}`);
                         }
                         if (myConfig.pathImages) {
                             tag.imageFormat = extension.substr(1);
@@ -161,7 +166,8 @@ exports.defineTags = function(dictionary) {
                         }
                         // create image file name with default format
                         if (myConfig.pathImages) {
-                            tag.outFileImage = path.join(myConfig.pathImages, tag.value.name.replace(new RegExp(extension + '$'), '.' + myConfig.imageFormat));
+                            tag.outFileImage = path.join(myConfig.pathImages,
+                                tag.value.name.replace(new RegExp(extension + '$'), '.' + myConfig.imageFormat));
                             if (!path.isAbsolute(tag.outFileImage)) {
                                 tag.outFileImage = path.join(process.cwd(), tag.outFileImage);
                             }
@@ -170,16 +176,16 @@ exports.defineTags = function(dictionary) {
                         break;
 
                     default:
-                        logger.warn(logPrefix + 'IGNORED: unknown image format "' + extension + '" or image name missing for @startuml tag at doclet starting line ' +
-                            doclet.meta.lineno + ', file ' + tag.srcFile);
+                        logger.warn(`${logPrefix} IGNORED: unknown image format "${extension}" or image name missing for @startuml tag ` +
+                          `at doclet starting line ${doclet.meta.lineno}, file ${tag.srcFile}`);
                 }
             }
             else {
-                logger.warn(logPrefix + 'IGNORED: image name missing for @startuml tag at doclet starting line ' + doclet.meta.lineno +
-                    ', file ' + tag.srcFile);
+                logger.warn(`${logPrefix} IGNORED: image name missing for @startuml tag at doclet starting line ${doclet.meta.lineno}, ` +
+                    `file ${tag.srcFile}`);
             }
 
-            logger.debug(logPrefix + 'startuml / onTagged: tag=' + JSON.stringify(tag));
+            logger.debug(`${logPrefix} startuml / onTagged: tag=${JSON.stringify(tag)}`);
         }
     });
     dictionary.defineTag('enduml', {
@@ -191,7 +197,7 @@ exports.defineTags = function(dictionary) {
          *  @param {object} tag new tag created
          */
         onTagged: function(doclet, tag) {
-            logger.debug(logPrefix + 'enduml / onTagged: tag=' + JSON.stringify(tag));
+            logger.debug(`${logPrefix} enduml / onTagged: tag=${JSON.stringify(tag)}`);
         }
     });
 };

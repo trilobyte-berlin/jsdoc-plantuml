@@ -18,10 +18,10 @@
     "url": "https://github.com/trilobyte-berlin/jsdoc-plantuml.git"
   },
   "engines": {
-    "node": ">=6.x"
+    "node": ">=10.x"
   },
   "dependencies": {
-    "fs-extra": "^7.0.0"
+    "fs-extra": "^9.0.0"
   },
   "optionalDependencies": {
     "node-plantuml": "~0.8.1"
