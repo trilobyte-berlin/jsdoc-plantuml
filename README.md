@@ -21,6 +21,16 @@ Creating image files need a installation of the "node-plantuml" package as well 
 "graphviz" tool to actually generate some of the image formats. For further documentation check
 https://www.npmjs.com/package/node-plantuml.
 
+## Attention
+
+Starting with NodeJS 12.16 there was a change introduced into NodeJS that breaks using 
+the `plant-uml` package as nodejs library (https://github.com/nodejs/node/issues/36173).
+A dirty work-around is implementet in this package script `fixBrokenNodeJS.js`.
+Just run it once after package installation and before using this JSDoc plugin to generate
+images from plant-uml code.
+
+This is not done automatically - it needs to run manually once.
+ 
 ## Usage
 
 install jsdoc and this plugin
