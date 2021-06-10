@@ -1,5 +1,6 @@
 .git/
 .idea/
 node_modules/
+test/
 *.iml
-
+.eslintrc.json
