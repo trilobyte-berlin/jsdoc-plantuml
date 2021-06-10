@@ -1,0 +1,21 @@
+{
+  "extends": ["google"],
+  "parserOptions": {
+    "ecmaVersion": 6
+  },
+  "rules": {
+    "max-len": [ "warn", {
+          "code": 140,
+          "ignoreComments": true,
+          "ignoreTrailingComments": true,
+          "ignoreUrls": true
+    }],
+    "comma-dangle": "off",
+    "brace-style": ["error", "stroustrup"],
+    "no-multi-spaces": "off"
+  },
+  "env": {
+    "browser": true,
+    "node": true
+  }
+}
