@@ -1,0 +1,33 @@
+# actions publish a new version to npm as well as on the github releases page
+name: publish-version
+on:
+  push:
+    tags:
+      # v1.2.3 as well as v1.2.3-4 or v1.2.3.4
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g. 0.0.1)'
+        required: true
+
+jobs:
+  publish_npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm install
+      - run: npm test
+      - name: check npm login and publish
+        run: |
+          npm whoami
+          if [ "${{ github.event.inputs.version }}" != "" ]; then
+            npm --no-git-tag-version version "${{ github.event.inputs.version }}"
+          fi
+          npm publish --tag latest
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
