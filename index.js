@@ -172,6 +172,7 @@ exports.defineTags = function(dictionary) {
          *  @param {object} tag new tag created
          */
         onTagged: function(doclet, tag) {
+            logger.debug(`${logPrefix} startuml / onTagged: tag=${JSON.stringify(tag)}`);
             tag.srcFile = path.join(doclet.meta.path, doclet.meta.filename);
             tag.value.description = '@startuml\n' + tag.value.description + '\n@enduml';
 
@@ -179,63 +180,62 @@ exports.defineTags = function(dictionary) {
             // and second time when they are attached to some line of code (function, class, ...)
             // here we ignore the second call
             if (Object.keys(doclet.meta.code).length !== 0) return;
-            if (tag.value.name) {
-                // check if name is given - look for plantuml known file extensions
-                let extension = path.extname(tag.value.name);
-                logger.debug(`${logPrefix} found uml tag with file name extension ${extension} at line ${doclet.meta.lineno}`);
-                switch (extension.toLowerCase()) {
-                    case '.png':
-                    case '.svg':
-                    case '.eps':
-                        tag.outFilePuml = path.join(myConfig.pathPuml, tag.value.name.replace(new RegExp(extension + '$'), '.puml'));
-                        tag.outFilePuml = _absolutePath(tag.outFilePuml);
-                        if (myConfig.pathImages) {
-                            tag.imageFormat = extension.substr(1);
-                            tag.outFileImage = _absolutePath(path.join(myConfig.pathImages, tag.value.name));
-                        }
-
-                        if (plantumlTags[tag.outFilePuml]) {
-                            logger.warn(`Filename ${tag.outFilePuml} already defined in another jsdoc tag. Duplicate found in file ${tag.srcFile}`);
-                        }
-                        else {
-                            plantumlTags[tag.outFilePuml] = tag;
-                        }
-                        break;
-
-                    case '.puml':
-                        tag.imageFormat = myConfig.imageFormat;
-                        if (myConfig.pathPuml) {
-                            tag.outFilePuml = _absolutePath(path.join(myConfig.pathPuml, tag.value.name));
-                        }
-                        // create image file name with default format
-                        if (myConfig.pathImages) {
-                            tag.outFileImage = path.join(myConfig.pathImages,
-                                tag.value.name.replace(new RegExp(extension + '$'), '.' + myConfig.imageFormat));
-                            tag.outFileImage = _absolutePath(tag.outFileImage);
-                        }
-                        doclet.plantUml.push(tag);
-
-                        if (plantumlTags[tag.outFilePuml]) {
-                            logger.warn(`Filename ${tag.outFilePuml} already defined in another jsdoc tag. Duplicate found in file ${tag.srcFile}`);
-                        }
-                        else {
-                            plantumlTags[tag.outFilePuml] = tag;
-                        }
-                        break;
-
-                    default:
-                        logger.warn(`${logPrefix} IGNORED: unknown image format "${extension}" or image name missing for @startuml tag ` +
-                          `at doclet starting line ${doclet.meta.lineno}, file ${tag.srcFile}`);
-                }
-            }
-            else {
+            // only process tags with a name (=filename)
+            if (!tag.value.name) {
                 logger.warn(`${logPrefix} IGNORED: image name missing for @startuml tag at doclet starting line ${doclet.meta.lineno}, ` +
-                    `file ${tag.srcFile}`);
+                  `file ${tag.srcFile}`);
+                return;
             }
 
-            logger.debug(`${logPrefix} startuml / onTagged: tag=${JSON.stringify(tag)}`);
+            // look for plantuml known file extensions, ignore all other as name is set from plantUml content instead
+            let extension = path.extname(tag.value.name);
+            logger.debug(`${logPrefix} found uml tag with file name extension ${extension} at line ${doclet.meta.lineno}`);
+            switch (extension.toLowerCase()) {
+                case '.png':
+                case '.svg':
+                case '.eps':
+                    tag.outFilePuml = path.join(myConfig.pathPuml, tag.value.name.replace(new RegExp(extension + '$'), '.puml'));
+                    tag.outFilePuml = _absolutePath(tag.outFilePuml);
+                    if (myConfig.pathImages) {
+                        tag.imageFormat = extension.substr(1);
+                        tag.outFileImage = _absolutePath(path.join(myConfig.pathImages, tag.value.name));
+                    }
+
+                    if (plantumlTags[tag.outFilePuml]) {
+                        logger.warn(`Filename ${tag.outFilePuml} already defined in another jsdoc tag. Duplicate found in file ${tag.srcFile}`);
+                    }
+                    else {
+                        plantumlTags[tag.outFilePuml] = tag;
+                    }
+                    break;
+
+                case '.puml':
+                    tag.imageFormat = myConfig.imageFormat;
+                    if (myConfig.pathPuml) {
+                        tag.outFilePuml = _absolutePath(path.join(myConfig.pathPuml, tag.value.name));
+                    }
+                    // create image file name with default format
+                    if (myConfig.pathImages) {
+                        tag.outFileImage = path.join(myConfig.pathImages,
+                            tag.value.name.replace(new RegExp(extension + '$'), '.' + myConfig.imageFormat));
+                        tag.outFileImage = _absolutePath(tag.outFileImage);
+                    }
+
+                    if (plantumlTags[tag.outFilePuml]) {
+                        logger.warn(`Filename ${tag.outFilePuml} already defined in another jsdoc tag. Duplicate found in file ${tag.srcFile}`);
+                    }
+                    else {
+                        plantumlTags[tag.outFilePuml] = tag;
+                    }
+                    break;
+
+                default:
+                    logger.warn(`${logPrefix} IGNORED: unknown image format "${extension}" or image name missing for @startuml tag ` +
+                      `at doclet starting line ${doclet.meta.lineno}, file ${tag.srcFile}`);
+            }
         }
     });
+
     dictionary.defineTag('enduml', {
         canHaveName: false,
         mustHaveValue: false,
