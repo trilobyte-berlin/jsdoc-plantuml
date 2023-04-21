@@ -12,6 +12,13 @@ const logPrefix = 'jsdoc-plantuml:';
 // lazy init if needed
 let plantuml;
 
+// store all PUML tags found with a name here, using object to detect duplicates with same name
+// and not overwrite existing without warning
+// it is not possible to attach the tags found to the doclet as some doclets not associated to code
+// will not be available after full processing all files. To work around this and cat all @startuml
+// block we store them here inside our plugin
+let plantumlTags = {};
+
 
 // default configuration
 let myConfig = {
@@ -62,6 +69,60 @@ function _checkConfiguration() {
 // ====
 
 
+/** helper function to write puml data into file name given
+ *
+ * @param {string} pumlFile file name and path where to write file
+ * @param {string} pumlData content of the file with all plant-uml data
+ * @private
+ */
+function _writePumlFile(pumlFile, pumlData) {
+    logger.info(`${logPrefix} writing puml file ${pumlFile}`);
+    fse.ensureDir(path.dirname(pumlFile), function(err) {
+        if (err && !err.EEXIST) {
+            logger.error(`${logPrefix} Cannot create directory to write puml files: ${err.toString()}`);
+            return;
+        }
+        fse.outputFile(pumlFile, pumlData, function(err) {
+            if (err) logger.error(`${logPrefix} Could not write PUML file at ${pumlFile}: ` + JSON.stringify(err));
+        });
+    });
+}
+
+/** helper function to write puml data into an image file (e.g. PNG) with name given
+ *
+ * @param {string} imageFile file name and path where to write file
+ * @param {string} imageFormat image file format like "png", "svg" or similar supported by plant-uml
+ * @param {string} pumlData content of the file with all plant-uml code to write
+ * @private
+ */
+function _writeImageFile(imageFile, imageFormat, pumlData) {
+    logger.info(`${logPrefix} writing ${imageFormat} image file ${imageFile}`);
+    fse.ensureDir(path.dirname(imageFile), function(err) {
+        if (err && !err.EEXIST) {
+            logger.error(`${logPrefix} Cannot create directory to write image files: ${err.toString()}`);
+            return;
+        }
+        let gen = plantuml.generate(pumlData, {format: imageFormat});
+        gen.out.pipe(fs.createWriteStream(imageFile));
+    });
+}
+
+/** converts a given path to an absolut one if it is relative, returning the new path
+ *
+ * @param {string} inPath path to check, either relative or absolute
+ * @returns {string} absolute path to input path given
+ * @private
+ */
+function _absolutePath(inPath) {
+    if (!path.isAbsolute(inPath)) {
+        const p = path.join(process.cwd(), inPath);
+        logger.debug(`${logPrefix} new ${inPath} path not absolute - convert to ${p}`);
+        return p
+    }
+    return inPath;
+}
+
+
 exports.handlers = {
     /** function to check at beginning if needed peer dependency is installed if image files shall be created
      *
@@ -78,42 +139,23 @@ exports.handlers = {
         }
     },
     /** check all doclets created and extract list of uml descriptions found to either write PUML files with
-     *  their source or create image from them
+     *  their source or create image from them. Writing files is deferred until all code is parsed to
+     *  have the possibility to detect duplicate definitions.
      *
      *  @param {object} e - jsdoc handler event (http://usejsdoc.org/about-plugins.html)
      */
     processingComplete: function(e) {
-        logger.debug(`${logPrefix} processingComplete: doclet length=${e.doclets.length}`);
-        let umlTags = [];
-        e.doclets.filter((d) => Array.isArray(d.plantUml))
-            .forEach((doc) => doc.plantUml.forEach((tag) => umlTags.push(tag)));
-
-        logger.debug(`${logPrefix} processingComplete: uml tags length=${umlTags.length}, ` + JSON.stringify(umlTags));
-        umlTags.forEach(function(umlTag) {
-            if (myConfig.createPuml && umlTag.outFilePuml) {
-                logger.info('writing puml file ' + umlTag.outFilePuml);
-                fse.ensureDir(path.dirname(umlTag.outFilePuml), function(err) {
-                    if (err && !err.EEXIST) {
-                        logger.error(`${logPrefix} Cannot create directory to write puml files: ${err.toString()}`);
-                        return;
-                    }
-                    fse.outputFile(umlTag.outFilePuml, umlTag.value.description, function(err) {
-                        if (err) logger.error(`${logPrefix} Could not write PUML file at ${umlTag.outFilePuml}: ` + JSON.stringify(err));
-                    });
-                });
-            }
-            if (myConfig.createImages && umlTag.outFileImage) {
-                logger.info(`${logPrefix} writing ${umlTag.imageFormat} image file ${umlTag.outFileImage}`);
-                fse.ensureDir(path.dirname(umlTag.outFileImage), function(err) {
-                    if (err && !err.EEXIST) {
-                        logger.error(`${logPrefix} Cannot create directory to write image files: ${err.toString()}`);
-                        return;
-                    }
-                    // write imagefile
-                    let gen = plantuml.generate(umlTag.value.description, {format: umlTag.imageFormat});
-                    gen.out.pipe(fs.createWriteStream(umlTag.outFileImage));
-                });
-            }
+        logger.debug(`${logPrefix} processingComplete: uml tags length=${Object.keys(plantumlTags).length}, ` + JSON.stringify(plantumlTags));
+        Object.keys(plantumlTags).forEach(function(key) {
+           if (plantumlTags.hasOwnProperty(key)) {
+               const umlTag = plantumlTags[key];
+               if (myConfig.createPuml && umlTag.outFilePuml) {
+                   _writePumlFile(umlTag.outFilePuml, umlTag.value.description)
+               }
+               if (myConfig.createImages && umlTag.outFileImage) {
+                   _writeImageFile(umlTag.outFileImage, umlTag.imageFormat, umlTag.value.description);
+               }
+           }
         });
     }
 };
@@ -124,55 +166,61 @@ exports.defineTags = function(dictionary) {
     dictionary.defineTag('startuml', {
         canHaveName: true,
         mustHaveValue: true,
-        /** define doclet for startuml to to catch all plant uml related definitions
+        /** define doclet for startuml to catch all plant uml related definitions
          *
          *  @param {object} doclet latest doclet
          *  @param {object} tag new tag created
          */
         onTagged: function(doclet, tag) {
-            if (!Array.isArray(doclet.plantUml)) doclet.plantUml = [];
             tag.srcFile = path.join(doclet.meta.path, doclet.meta.filename);
             tag.value.description = '@startuml\n' + tag.value.description + '\n@enduml';
+
+            // most @startuml definitions are tagged two times, first time for doclet found (/** ... */)
+            // and second time when they are attached to some line of code (function, class, ...)
+            // here we ignore the second call
+            if (Object.keys(doclet.meta.code).length !== 0) return;
             if (tag.value.name) {
-                // check if really name is given - look for plantuml known file extensions
+                // check if name is given - look for plantuml known file extensions
                 let extension = path.extname(tag.value.name);
-                logger.debug(`${logPrefix} found uml tag with file name extension ${extension}`);
+                logger.debug(`${logPrefix} found uml tag with file name extension ${extension} at line ${doclet.meta.lineno}`);
                 switch (extension.toLowerCase()) {
                     case '.png':
                     case '.svg':
                     case '.eps':
                         tag.outFilePuml = path.join(myConfig.pathPuml, tag.value.name.replace(new RegExp(extension + '$'), '.puml'));
-                        if (!path.isAbsolute(tag.outFilePuml)) {
-                            tag.outFilePuml = path.join(process.cwd(), tag.outFilePuml);
-                            logger.debug(`${logPrefix} new puml path not absolute - new is ${tag.outFilePuml}`);
-                        }
+                        tag.outFilePuml = _absolutePath(tag.outFilePuml);
                         if (myConfig.pathImages) {
                             tag.imageFormat = extension.substr(1);
-                            tag.outFileImage = path.join(myConfig.pathImages, tag.value.name);
-                            if (!path.isAbsolute(tag.outFileImage)) {
-                                tag.outFileImage = path.join(process.cwd(), tag.outFileImage);
-                            }
+                            tag.outFileImage = _absolutePath(path.join(myConfig.pathImages, tag.value.name));
                         }
-                        doclet.plantUml.push(tag);
+
+                        if (plantumlTags[tag.outFilePuml]) {
+                            logger.warn(`Filename ${tag.outFilePuml} already defined in another jsdoc tag. Duplicate found in file ${tag.srcFile}`);
+                        }
+                        else {
+                            plantumlTags[tag.outFilePuml] = tag;
+                        }
                         break;
 
                     case '.puml':
                         tag.imageFormat = myConfig.imageFormat;
                         if (myConfig.pathPuml) {
-                            tag.outFilePuml = path.join(myConfig.pathPuml, tag.value.name);
-                            if (!path.isAbsolute(tag.outFilePuml)) {
-                                tag.outFilePuml = path.join(process.cwd(), tag.outFilePuml);
-                            }
+                            tag.outFilePuml = _absolutePath(path.join(myConfig.pathPuml, tag.value.name));
                         }
                         // create image file name with default format
                         if (myConfig.pathImages) {
                             tag.outFileImage = path.join(myConfig.pathImages,
                                 tag.value.name.replace(new RegExp(extension + '$'), '.' + myConfig.imageFormat));
-                            if (!path.isAbsolute(tag.outFileImage)) {
-                                tag.outFileImage = path.join(process.cwd(), tag.outFileImage);
-                            }
+                            tag.outFileImage = _absolutePath(tag.outFileImage);
                         }
                         doclet.plantUml.push(tag);
+
+                        if (plantumlTags[tag.outFilePuml]) {
+                            logger.warn(`Filename ${tag.outFilePuml} already defined in another jsdoc tag. Duplicate found in file ${tag.srcFile}`);
+                        }
+                        else {
+                            plantumlTags[tag.outFilePuml] = tag;
+                        }
                         break;
 
                     default:

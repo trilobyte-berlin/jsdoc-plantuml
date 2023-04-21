@@ -4,7 +4,7 @@
   "description": "jsdoc3 plugin to use plantuml inside javascript documentation",
   "main": "./index.js",
   "scripts": {
-    "test": "jsdoc --configure test/jsdocConfig.json",
+    "test": "jsdoc --configure test/jsdocConfig.json --debug",
     "fixBrokenNodeJS": "node ./fixBrokenNodeJS.js"
   },
   "author": {

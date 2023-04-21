@@ -1,4 +1,4 @@
-# actions publish a new version to npm as well as on the github releases page
+# actions publish a new version to npm as well as on the GitHub releases page
 name: publish-version
 on:
   push:
