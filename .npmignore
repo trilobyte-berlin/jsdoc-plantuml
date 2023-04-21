@@ -1,4 +1,5 @@
 .git/
+.github/
 .idea/
 examples/
 node_modules/
