@@ -6,26 +6,26 @@
 
 [![NPM](https://nodei.co/npm/jsdoc-plantuml.png?downloads=true&stars=true)](https://nodei.co/npm/jsdoc-plantuml/)
 
-This package contains a jsdoc3 plugin to use plantuml inside javascript documentation.
+This package contains a jsdoc3 / jsdoc4 plugin to use plantuml inside javascript documentation.
 
 * JSDoc: http://usejsdoc.org (Node-Package: https://www.npmjs.com/package/jsdoc) 
 * PlantUML: http://plantuml.com/
 
 This plugin allows using the plantuml syntax with "@startuml ... @enduml" to use inside
-your normal JSDoc source code comments. This plugins parses them and either writes it 
-into seperate files for external processing/displaying in ticket systems/... or 
+your normal JSDoc source code comments. This plugin parses them and either writes it 
+into separate files for external processing/displaying in ticket systems/... or 
 generates image files to include in your generated documentation.
 
 Extracting the plantuml source into extra files works without extra dependencies,
-Creating image files need a installation of the "node-plantuml" package as well as the
-"graphviz" tool to actually generate some of the image formats. For further documentation check
+Creating image files need an installation of the "node-plantuml" package as well as the
+"graphviz" tool to actually generate some image formats. For further documentation check
 https://www.npmjs.com/package/node-plantuml.
 
 ## Attention
 
 Starting with NodeJS 12.16 there was a change introduced into NodeJS that breaks using 
 the `plant-uml` package as nodejs library (https://github.com/nodejs/node/issues/36173).
-A dirty work-around is implementet in this package script `fixBrokenNodeJS.js`.
+A quick-n-dirty work-around is implemented in this package script `fixBrokenNodeJS.js`.
 Just run it once after package installation and before using this JSDoc plugin to generate
 images from plant-uml code.
 
@@ -35,7 +35,7 @@ This is not done automatically - it needs to run manually once.
 
 install jsdoc and this plugin
 
-Now write some uml diagrams inside your regular jsdocs. 
+Now write some uml diagrams inside your regular jsdoc. 
 
 Attention - The `@startuml` tag must have one parameter - the filename to safe this uml diagram at.
 ```js
@@ -89,18 +89,18 @@ if no plantuml object is added to your jsdoc-config.
 comments.
 * `puml.create` Boolean flag to indicate if puml files shall be created or not
 * `puml.destination` Path (absolute or relative to working dir) where the  puml files will
-be stored. If the filename at the `@startuml` tag contains some paths too these to will
-be concatened. All files will be created with the '.puml' extension.
+be stored. If the filename at the `@startuml` tag contains some paths too, these to will
+be concatenated. All files will be created with the '.puml' extension.
 
 `images: {}` Object containing all parameters related to the creation of the image files from 
 jsdoc comments.
 * `images.create` Boolean flag to indicate if image files shall be created or not
 * `images.destination` Path (absolute or relative to working dir) where the image files will
-be stored. If the filename at the `@startuml` tag contains some paths too these to will
+be stored. If the filename at the `@startuml` tag contains some paths too, these to will
 be concatened.
 * `images.defaultFormat` If the filename given at the `@startuml` tag ends with the '.puml'
  file suffix this format will be used to create images. If the filename already contains a file format
- this one is ignore.
+ this one is ignored.
  
 ## Examples
 
@@ -211,8 +211,8 @@ function yadablah() {
 }
 ```
 
-Files safed are "images/yadablah.puml" and "images/yadablah.svg" inside current working directory.
+Files saved are "images/yadablah.puml" and "images/yadablah.svg" inside current working directory.
 
 
 # Copyright
-Trilobyte GmbH / Stefan Seide, 2019
+Trilobyte GmbH / Stefan Seide, 2023

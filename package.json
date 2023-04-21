@@ -4,7 +4,7 @@
   "description": "jsdoc3 plugin to use plantuml inside javascript documentation",
   "main": "./index.js",
   "scripts": {
-    "test": "grunt --gruntfile test/Gruntfile.js",
+    "test": "jsdoc --configure test/jsdocConfig.json",
     "fixBrokenNodeJS": "node ./fixBrokenNodeJS.js"
   },
   "author": {
@@ -13,6 +13,7 @@
   "keywords": [
     "jsdoc",
     "jsdoc3",
+    "jsdoc4",
     "jsdoc-plugin",
     "plantuml",
     "uml"
@@ -34,9 +35,7 @@
     "jsdoc": "*"
   },
   "devDependencies": {
-    "grunt": "^1.4.1",
-    "grunt-jsdoc": "^2.4.1",
-    "jsdoc": "^3.6.10"
+    "jsdoc": "^4.0.2"
   },
   "readmeFilename": "README.md",
   "bugs": {

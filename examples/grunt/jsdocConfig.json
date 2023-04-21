@@ -4,17 +4,15 @@
   },
   "opts": {
     "access": "all",
-    "destination": "test/jsDocs",
+    "destination": "jsDocs",
     "recurse": true,
     "sort": false
   },
   "plugins": [
-    "index.js"
+    "jsdoc-plantuml"
   ],
   "source": {
-    "include": [
-      "test/js/"
-    ]
+    // ... wherever the source is
   },
   "templates": {
     "default": {
@@ -24,11 +22,11 @@
   "plantuml": {
     "puml": {
       "create": true,
-      "destination": "test/jsDocs/plantuml"
+      "destination": "jsDocs/plantuml"
     },
     "images": {
       "create": true,
-      "destination": "test/jsDocs/img",
+      "destination": "jsDocs/img",
       "defaultFormat": "png",
       "replaceWithImage": true
     }
