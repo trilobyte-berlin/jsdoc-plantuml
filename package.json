@@ -35,7 +35,7 @@
     "jsdoc": "*"
   },
   "devDependencies": {
-    "jsdoc": "^4.0.2"
+    "jsdoc": "^4.0.3"
   },
   "readmeFilename": "README.md",
   "bugs": {
